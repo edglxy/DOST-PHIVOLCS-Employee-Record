@@ -7,7 +7,6 @@ CORS(app)
 
 def connect_db():
     return mysql.connector.connect(
-        
         host="localhost",
         port="3308",
         user="root",
@@ -32,8 +31,22 @@ def list_employees():
         (like, like, like)
     )
     data = cur.fetchall()
+    for row in data:
+        if row.get("birthdate"):
+            row["birthdate"] = row["birthdate"].strftime("%Y-%m-%d")
     db.close()
     return jsonify(data)
+
+@app.route("/employees/<int:id>", methods=["GET"])
+def get_employee(id):
+    db = connect_db()
+    cur = db.cursor(dictionary=True)
+    cur.execute("SELECT * FROM employees WHERE id=%s", (id,))
+    row = cur.fetchone()
+    if row and row.get("birthdate"):
+        row["birthdate"] = row["birthdate"].strftime("%Y-%m-%d")
+    db.close()
+    return jsonify(row)
 
 @app.route("/employees", methods=["POST"])
 def add_employee():
@@ -42,10 +55,12 @@ def add_employee():
     db = connect_db()
     cur = db.cursor()
     cur.execute(
-        """INSERT INTO employees (first_name, last_name, middle_name, birthdate, gender, address, mobile_number, job_title)
+        """INSERT INTO employees 
+           (first_name, last_name, middle_name, birthdate, gender, address, mobile_number, job_title)
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-        (body["first_name"], body["last_name"], body["middle_name"], body["birthdate"],
-         body["gender"], body["address"], body["mobile_number"], body["job_title"])
+        (body["first_name"], body["last_name"], body["middle_name"],
+         body["birthdate"], body["gender"], body["address"],
+         body["mobile_number"], body["job_title"])
     )
     db.commit()
     db.close()
@@ -58,10 +73,13 @@ def edit_employee(id):
     db = connect_db()
     cur = db.cursor()
     cur.execute(
-        """UPDATE employees SET first_name=%s, last_name=%s, middle_name=%s, birthdate=%s,
-           gender=%s, address=%s, mobile_number=%s, job_title=%s WHERE id=%s""",
-        (body["first_name"], body["last_name"], body["middle_name"], body["birthdate"],
-         body["gender"], body["address"], body["mobile_number"], body["job_title"], id)
+        """UPDATE employees SET 
+           first_name=%s, last_name=%s, middle_name=%s, birthdate=%s,
+           gender=%s, address=%s, mobile_number=%s, job_title=%s 
+           WHERE id=%s""",
+        (body["first_name"], body["last_name"], body["middle_name"],
+         body["birthdate"], body["gender"], body["address"],
+         body["mobile_number"], body["job_title"], id)
     )
     db.commit()
     db.close()
