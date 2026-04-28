@@ -34,7 +34,7 @@ CREATE TABLE employees (
 
 To create the backend directory run:
 
-cd backend
+cd employee-system/backend
 python -m venv venv
 venv\Scripts\activate
 pip install flask flask-cors mysql-connector-python
