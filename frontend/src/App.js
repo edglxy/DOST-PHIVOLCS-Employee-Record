@@ -170,7 +170,9 @@ export default function App() {
       birthdate: emp.birthdate,
       gender: emp.gender,
       address: emp.address,
-      mobile_number: emp.mobile_number,
+      mobile_number: emp.mobile_number.startsWith("63")
+        ? "0" + emp.mobile_number.slice(2)
+        : emp.mobile_number,
       job_title: emp.job_title
     });
     setEditId(emp.id);
